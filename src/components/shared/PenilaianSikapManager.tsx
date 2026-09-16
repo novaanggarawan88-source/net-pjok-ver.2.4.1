@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   HeartHandshake,
   ShieldCheck,
@@ -16,6 +16,8 @@ import {
   Edit3,
   Lock,
   UserCheck,
+  Download,
+  FileSpreadsheet,
 } from 'lucide-react';
 import { User, PenilaianSikap, getTeacherAssignedClasses } from '../../types';
 import { dataStorage, LMSDatabase } from '../../services/dataStorage';
@@ -23,6 +25,7 @@ import { dataStorage, LMSDatabase } from '../../services/dataStorage';
 interface PenilaianSikapManagerProps {
   db: LMSDatabase;
   currentUser: User;
+  initialTab?: 'entri' | 'rekap';
 }
 
 const ASPEK_SIKAP_CONFIG = [
@@ -67,7 +70,11 @@ function calculatePredikat(avg: number): 'Sangat Baik' | 'Baik' | 'Cukup' | 'Per
   return 'Perlu Bimbingan';
 }
 
-export const PenilaianSikapManager: React.FC<PenilaianSikapManagerProps> = ({ db, currentUser }) => {
+export const PenilaianSikapManager: React.FC<PenilaianSikapManagerProps> = ({
+  db,
+  currentUser,
+  initialTab,
+}) => {
   const isMurid = currentUser.role === 'MURID';
 
   // -------------------------------------------------------------
@@ -186,6 +193,14 @@ export const PenilaianSikapManager: React.FC<PenilaianSikapManagerProps> = ({ db
   const [selectedKelasId, setSelectedKelasId] = useState<string>(() => {
     return availableClasses.length > 0 ? availableClasses[0].id : 'cls-xi-1';
   });
+
+  const [activeTab, setActiveTab] = useState<'entri' | 'rekap'>(initialTab || 'entri');
+
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<'Semua' | 'Sudah' | 'Belum'>('Semua');
@@ -364,6 +379,54 @@ export const PenilaianSikapManager: React.FC<PenilaianSikapManagerProps> = ({ db
     return studentsInClass.filter((s) => assessmentsMap.has(s.id)).length;
   }, [studentsInClass, assessmentsMap]);
 
+  // CSV Export for Attitude Assessment
+  const handleExportCSVSikap = () => {
+    const headers = [
+      'No',
+      'NIS',
+      'Nama Siswa',
+      'Kelas',
+      'Integritas (Fair Play)',
+      'Disiplin',
+      'Kerja Sama',
+      'Sportivitas',
+      'Tanggung Jawab',
+      'Rata-Rata (1-4)',
+      'Predikat',
+      'Catatan Umpan Balik Guru',
+    ];
+    const rows = studentsInClass.map((s, idx) => {
+      const a = assessmentsMap.get(s.id);
+      return [
+        idx + 1,
+        `"${s.nis || '-'}"`,
+        `"${s.name}"`,
+        `"${currentKelas?.nama || selectedKelasId}"`,
+        a ? a.integritas : '-',
+        a ? a.disiplin : '-',
+        a ? a.kerjaSama : '-',
+        a ? a.sportivitas : '-',
+        a ? a.tanggungJawab : '-',
+        a ? a.rataRata : '-',
+        `"${a ? a.predikat : 'Belum Dinilai'}"`,
+        `"${a?.catatanGuru ? a.catatanGuru.replace(/"/g, '""') : '-'}"`,
+      ];
+    });
+    const csvContent =
+      'data:text/csv;charset=utf-8,' +
+      [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute(
+      'download',
+      `Rekap_Penilaian_Sikap_${(currentKelas?.nama || selectedKelasId).replace(/\s+/g, '_')}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -377,7 +440,7 @@ export const PenilaianSikapManager: React.FC<PenilaianSikapManagerProps> = ({ db
               <span className="text-xs text-slate-400 font-semibold">• Profil Pelajar Pancasila</span>
             </div>
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-              Penilaian Sikap & Karakter Siswa
+              {activeTab === 'rekap' ? 'Rekapan Penilaian Sikap Siswa' : 'Penilaian Sikap & Karakter Siswa'}
             </h1>
             <p className="text-xs text-slate-500 leading-relaxed max-w-3xl mt-1">
               Evaluasi dimensi sikap peserta didik: Integritas (Fair Play), Disiplin, Kerja Sama, Sportivitas, dan Tanggung Jawab. Hasil penilaian guru akan langsung tampak pada akun siswa masing-masing.
@@ -403,8 +466,37 @@ export const PenilaianSikapManager: React.FC<PenilaianSikapManagerProps> = ({ db
           </div>
         </div>
 
+        {/* Navigation Tabs */}
+        <div className="flex items-center gap-2 border-b border-slate-200 pt-1">
+          <button
+            type="button"
+            onClick={() => setActiveTab('entri')}
+            className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer ${
+              activeTab === 'entri'
+                ? 'border-emerald-600 text-emerald-700 bg-emerald-50/50 rounded-t-xl'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            <Users className="w-4 h-4" />
+            <span>Observasi & Entri Sikap</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('rekap')}
+            className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer ${
+              activeTab === 'rekap'
+                ? 'border-emerald-600 text-emerald-700 bg-emerald-50/50 rounded-t-xl'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            <FileSpreadsheet className="w-4 h-4" />
+            <span>Rekapan Penilaian Sikap</span>
+          </button>
+        </div>
+
         {/* Filter Controls */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-3 border-t border-slate-100">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2">
           <div className="flex items-center gap-2 flex-1 max-w-md">
             <select
               value={selectedKelasId}
@@ -431,103 +523,233 @@ export const PenilaianSikapManager: React.FC<PenilaianSikapManagerProps> = ({ db
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value as any)}
-              className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700"
-            >
-              <option value="Semua">Semua Status</option>
-              <option value="Sudah">Sudah Dinilai</option>
-              <option value="Belum">Belum Dinilai</option>
-            </select>
+            {activeTab === 'entri' ? (
+              <>
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value as any)}
+                  className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700"
+                >
+                  <option value="Semua">Semua Status</option>
+                  <option value="Sudah">Sudah Dinilai</option>
+                  <option value="Belum">Belum Dinilai</option>
+                </select>
 
-            <button
-              type="button"
-              onClick={() => handleBatchAssess(4)}
-              className="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl text-xs font-bold transition-colors cursor-pointer border border-emerald-200"
-            >
-              Isi Cepat Semua (Sangat Baik)
-            </button>
+                <button
+                  type="button"
+                  onClick={() => handleBatchAssess(4)}
+                  className="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl text-xs font-bold transition-colors cursor-pointer border border-emerald-200"
+                >
+                  Isi Cepat Semua (Sangat Baik)
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="px-3 py-2 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-colors cursor-pointer border border-slate-200 flex items-center gap-1.5 shadow-2xs"
+                >
+                  <Printer className="w-3.5 h-3.5 text-slate-600" />
+                  <span>Cetak Rekap Sikap</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleExportCSVSikap}
+                  className="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Ekspor CSV</span>
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Student List */}
-      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
-        <div className="p-4 bg-slate-50/80 border-b border-slate-200 flex items-center justify-between text-xs font-bold text-slate-600">
-          <span>Daftar Siswa Kelas {currentKelas?.nama} ({filteredStudents.length} Siswa)</span>
-          <span className="text-slate-400 font-semibold hidden sm:inline">
-            Klik tombol &quot;Nilai Sikap&quot; untuk input asesmen
-          </span>
-        </div>
-
-        {filteredStudents.length === 0 ? (
-          <div className="p-12 text-center text-slate-400 space-y-2">
-            <Users className="w-10 h-10 text-slate-300 mx-auto" />
-            <p className="font-bold text-sm">Tidak ada siswa ditemukan</p>
+      {/* Main Content: Entri List or Rekapan Table */}
+      {activeTab === 'entri' ? (
+        <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
+          <div className="p-4 bg-slate-50/80 border-b border-slate-200 flex items-center justify-between text-xs font-bold text-slate-600">
+            <span>Daftar Siswa Kelas {currentKelas?.nama} ({filteredStudents.length} Siswa)</span>
+            <span className="text-slate-400 font-semibold hidden sm:inline">
+              Klik tombol &quot;Nilai Sikap&quot; untuk input asesmen
+            </span>
           </div>
-        ) : (
-          <div className="divide-y divide-slate-100">
-            {filteredStudents.map((murid, idx) => {
-              const assessment = assessmentsMap.get(murid.id);
 
-              return (
-                <div
-                  key={murid.id}
-                  className="p-4 sm:px-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-slate-50/60 transition-colors"
-                >
-                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <span className="text-xs font-bold text-slate-400 w-6 text-right shrink-0">
-                      {idx + 1}.
-                    </span>
-                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-black flex items-center justify-center text-sm shadow-xs shrink-0">
-                      {murid.name.charAt(0)}
-                    </div>
-                    <div className="min-w-0">
-                      <h3 className="font-extrabold text-slate-900 text-sm truncate">{murid.name}</h3>
-                      <p className="text-xs text-slate-400">
-                        NIS: <strong className="text-slate-600 font-semibold">{murid.nis || '-'}</strong>
-                      </p>
-                    </div>
-                  </div>
+          {filteredStudents.length === 0 ? (
+            <div className="p-12 text-center text-slate-400 space-y-2">
+              <Users className="w-10 h-10 text-slate-300 mx-auto" />
+              <p className="font-bold text-sm">Tidak ada siswa ditemukan</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-slate-100">
+              {filteredStudents.map((murid, idx) => {
+                const assessment = assessmentsMap.get(murid.id);
 
-                  {/* Status & Predikat */}
-                  <div className="flex items-center gap-3 shrink-0">
-                    {assessment ? (
-                      <div className="text-left sm:text-right">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-black bg-emerald-100 text-emerald-800">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                          {assessment.predikat} ({assessment.rataRata?.toFixed(1)})
-                        </span>
-                        <p className="text-[11px] text-slate-400 mt-0.5">
-                          Dinilai: {assessment.tanggal}
+                return (
+                  <div
+                    key={murid.id}
+                    className="p-4 sm:px-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-slate-50/60 transition-colors"
+                  >
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <span className="text-xs font-bold text-slate-400 w-6 text-right shrink-0">
+                        {idx + 1}.
+                      </span>
+                      <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-black flex items-center justify-center text-sm shadow-xs shrink-0">
+                        {murid.name.charAt(0)}
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="font-extrabold text-slate-900 text-sm truncate">{murid.name}</h3>
+                        <p className="text-xs text-slate-400">
+                          NIS: <strong className="text-slate-600 font-semibold">{murid.nis || '-'}</strong>
                         </p>
                       </div>
-                    ) : (
-                      <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-500">
-                        Belum Dinilai
-                      </span>
-                    )}
+                    </div>
 
-                    <button
-                      type="button"
-                      onClick={() => handleOpenScoreModal(murid)}
-                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                        assessment
-                          ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                          : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs'
-                      }`}
-                    >
-                      <Edit3 className="w-3.5 h-3.5" />
-                      <span>{assessment ? 'Ubah Sikap' : 'Nilai Sikap'}</span>
-                    </button>
+                    {/* Status & Predikat */}
+                    <div className="flex items-center gap-3 shrink-0">
+                      {assessment ? (
+                        <div className="text-left sm:text-right">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-black bg-emerald-100 text-emerald-800">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                            {assessment.predikat} ({assessment.rataRata?.toFixed(1)})
+                          </span>
+                          <p className="text-[11px] text-slate-400 mt-0.5">
+                            Dinilai: {assessment.tanggal}
+                          </p>
+                        </div>
+                      ) : (
+                        <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-500">
+                          Belum Dinilai
+                        </span>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() => handleOpenScoreModal(murid)}
+                        className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                          assessment
+                            ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                            : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs'
+                        }`}
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                        <span>{assessment ? 'Ubah Sikap' : 'Nilai Sikap'}</span>
+                      </button>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
+          )}
+        </div>
+      ) : (
+        /* Rekapan Penilaian Sikap Table View */
+        <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
+          <div className="p-4 bg-slate-50/80 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-bold text-slate-700">
+            <div>
+              <span>Tabel Rekapitulasi Sikap Kelas {currentKelas?.nama} ({filteredStudents.length} Siswa)</span>
+              <p className="text-[11px] text-slate-400 font-normal">
+                Skala Skor: 1 (PB / Perlu Bimbingan), 2 (C / Cukup), 3 (B / Baik), 4 (SB / Sangat Baik)
+              </p>
+            </div>
+            <span className="text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200/60 font-semibold self-start sm:self-auto">
+              Tercatat: {assessedCount} dari {studentsInClass.length} Siswa
+            </span>
           </div>
-        )}
-      </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr className="bg-slate-100/75 text-slate-700 font-extrabold border-b border-slate-200 text-[11px] uppercase tracking-wider">
+                  <th className="py-3 px-3 w-10 text-center">No</th>
+                  <th className="py-3 px-3 min-w-[180px]">Nama Siswa & NIS</th>
+                  <th className="py-3 px-2 text-center w-24">Integritas</th>
+                  <th className="py-3 px-2 text-center w-20">Disiplin</th>
+                  <th className="py-3 px-2 text-center w-24">Kerja Sama</th>
+                  <th className="py-3 px-2 text-center w-24">Sportivitas</th>
+                  <th className="py-3 px-2 text-center w-24">T. Jawab</th>
+                  <th className="py-3 px-2 text-center w-20">Rata²</th>
+                  <th className="py-3 px-3 text-center w-32">Predikat</th>
+                  <th className="py-3 px-3 min-w-[200px]">Catatan Evaluasi Guru</th>
+                  <th className="py-3 px-3 text-center w-20">Aksi</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {filteredStudents.length === 0 ? (
+                  <tr>
+                    <td colSpan={11} className="py-8 text-center text-slate-400">
+                      Tidak ada data siswa ditemukan.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredStudents.map((murid, idx) => {
+                    const assessment = assessmentsMap.get(murid.id);
+
+                    return (
+                      <tr key={murid.id} className="hover:bg-slate-50/70 transition-colors">
+                        <td className="py-3 px-3 text-center text-slate-400 font-bold">
+                          {idx + 1}
+                        </td>
+                        <td className="py-3 px-3">
+                          <p className="font-bold text-slate-900 leading-tight">{murid.name}</p>
+                          <p className="text-[10px] text-slate-400">NIS: {murid.nis || '-'}</p>
+                        </td>
+                        <td className="py-3 px-2 text-center font-bold text-slate-700">
+                          {assessment ? assessment.integritas : <span className="text-slate-300">-</span>}
+                        </td>
+                        <td className="py-3 px-2 text-center font-bold text-slate-700">
+                          {assessment ? assessment.disiplin : <span className="text-slate-300">-</span>}
+                        </td>
+                        <td className="py-3 px-2 text-center font-bold text-slate-700">
+                          {assessment ? assessment.kerjaSama : <span className="text-slate-300">-</span>}
+                        </td>
+                        <td className="py-3 px-2 text-center font-bold text-slate-700">
+                          {assessment ? assessment.sportivitas : <span className="text-slate-300">-</span>}
+                        </td>
+                        <td className="py-3 px-2 text-center font-bold text-slate-700">
+                          {assessment ? assessment.tanggungJawab : <span className="text-slate-300">-</span>}
+                        </td>
+                        <td className="py-3 px-2 text-center font-black text-emerald-700 bg-emerald-50/30">
+                          {assessment ? assessment.rataRata?.toFixed(1) : <span className="text-slate-300">-</span>}
+                        </td>
+                        <td className="py-3 px-3 text-center">
+                          {assessment ? (
+                            <span
+                              className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-black border ${
+                                SKOR_SIKAP_LABEL[Math.round(assessment.rataRata || 3)]?.badge ||
+                                'bg-slate-100 text-slate-700'
+                              }`}
+                            >
+                              {assessment.predikat}
+                            </span>
+                          ) : (
+                            <span className="text-[11px] text-slate-400 italic">Belum Dinilai</span>
+                          )}
+                        </td>
+                        <td className="py-3 px-3 text-[11px] text-slate-600 max-w-xs truncate">
+                          {assessment?.catatanGuru || <span className="text-slate-300 italic">-</span>}
+                        </td>
+                        <td className="py-3 px-3 text-center">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenScoreModal(murid)}
+                            className="p-1.5 rounded-lg text-slate-500 hover:text-emerald-700 hover:bg-emerald-50 transition-colors cursor-pointer"
+                            title="Edit Nilai Sikap"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* Modal Penilaian Sikap Siswa */}
       {activeMuridToScore && (

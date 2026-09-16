@@ -145,14 +145,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
           { id: 'tugas', label: 'Tugas', icon: <ClipboardList className="w-5 h-5" /> },
           { id: 'quiz', label: 'Quiz & Asesmen', icon: <CheckCircle className="w-5 h-5" /> },
           { id: 'praktik', label: 'Penilaian Praktik', icon: <Activity className="w-5 h-5" /> },
-          { id: 'penilaian-harian', label: 'Penilaian Harian (1-5)', icon: <Flame className="w-5 h-5 text-sky-400" /> },
+          { id: 'penilaian-harian', label: 'Penilaian Harian', icon: <Flame className="w-5 h-5 text-sky-400" /> },
           { id: 'penilaian-sikap', label: 'Penilaian Sikap', icon: <HeartHandshake className="w-5 h-5 text-emerald-400" /> },
           { id: 'penilaian-teman', label: 'Penilaian Teman Sejawat', icon: <Users2 className="w-5 h-5 text-indigo-400" /> },
           { id: 'refleksi', label: 'Refleksi Pembelajaran', icon: <Sparkles className="w-5 h-5" /> },
         ],
       },
       {
-        title: 'LAPORAN',
+        title: 'JURNAL & PRESENSI',
         items: [
           { id: 'jurnal', label: 'Jurnal Mengajar', icon: <FileText className="w-5 h-5" /> },
           { id: 'presensi', label: 'Presensi Murid', icon: <CalendarCheck className="w-5 h-5" /> },
@@ -162,8 +162,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
             icon: <FileText className="w-5 h-5 text-amber-400" />,
             badge: pendingIzinCount > 0 ? pendingIzinCount : undefined,
           },
+        ],
+      },
+      {
+        title: 'REKAPAN',
+        items: [
           { id: 'rekap-jurnal', label: 'Rekapan Jurnal', icon: <FileSpreadsheet className="w-5 h-5 text-teal-400" /> },
           { id: 'rekap-absensi', label: 'Rekapan Presensi', icon: <FileSpreadsheet className="w-5 h-5 text-emerald-400" /> },
+          { id: 'rekap-penilaian-teman', label: 'Rekapan Penilaian Teman Sejawat', icon: <Users2 className="w-5 h-5 text-indigo-400" /> },
+          { id: 'rekap-penilaian-sikap', label: 'Rekapan Penilaian Sikap', icon: <HeartHandshake className="w-5 h-5 text-pink-400" /> },
           { id: 'nilai', label: 'Penilaian & Rapor', icon: <Award className="w-5 h-5" /> },
         ],
       },
@@ -204,7 +211,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         title: 'PENILAIAN & JURNAL',
         items: [
           { id: 'praktik', label: 'Penilaian Praktik', icon: <Activity className="w-5 h-5" /> },
-          { id: 'penilaian-harian', label: 'Penilaian Harian (1-5)', icon: <Flame className="w-5 h-5 text-sky-400" /> },
+          { id: 'penilaian-harian', label: 'Penilaian Harian', icon: <Flame className="w-5 h-5 text-sky-400" /> },
           { id: 'penilaian-sikap', label: 'Penilaian Sikap', icon: <HeartHandshake className="w-5 h-5 text-emerald-400" /> },
           { id: 'penilaian-teman', label: 'Penilaian Teman Sejawat', icon: <Users2 className="w-5 h-5 text-indigo-400" /> },
           { id: 'refleksi', label: 'Refleksi Pembelajaran', icon: <Sparkles className="w-5 h-5" /> },
@@ -216,8 +223,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
             icon: <FileText className="w-5 h-5 text-amber-400" />,
             badge: pendingIzinCount > 0 ? pendingIzinCount : undefined,
           },
+        ],
+      },
+      {
+        title: 'REKAPAN',
+        items: [
           { id: 'rekap-jurnal', label: 'Rekapan Jurnal', icon: <FileSpreadsheet className="w-5 h-5 text-teal-400" /> },
           { id: 'rekap-absensi', label: 'Rekapan Presensi', icon: <FileSpreadsheet className="w-5 h-5 text-emerald-400" /> },
+          { id: 'rekap-penilaian-teman', label: 'Rekapan Penilaian Teman Sejawat', icon: <Users2 className="w-5 h-5 text-indigo-400" /> },
+          { id: 'rekap-penilaian-sikap', label: 'Rekapan Penilaian Sikap', icon: <HeartHandshake className="w-5 h-5 text-pink-400" /> },
           { id: 'nilai', label: 'Rekapan Nilai', icon: <Award className="w-5 h-5" /> },
         ],
       },
@@ -262,6 +276,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           { id: 'materi-saya', label: 'Materi Pembelajaran', icon: <BookMarked className="w-5 h-5" /> },
           { id: 'tugas-saya', label: 'Tugas Saya', icon: <ClipboardList className="w-5 h-5" /> },
           { id: 'quiz-saya', label: 'Quiz & Asesmen', icon: <CheckCircle className="w-5 h-5" /> },
+          { id: 'penilaian-teman-saya', label: 'Penilaian Teman Sejawat', icon: <Users2 className="w-5 h-5 text-indigo-400" /> },
           { id: 'refleksi-saya', label: 'Refleksi Belajar', icon: <Sparkles className="w-5 h-5" /> },
         ],
       },
@@ -296,10 +311,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
               className={`w-11 h-11 bg-blue-600 rounded-xl flex items-center justify-center shadow-md overflow-hidden border border-white/10 ${
                 role === 'ADMIN' ? 'cursor-pointer hover:ring-2 hover:ring-emerald-400' : ''
               }`}
-              title={role === 'ADMIN' ? 'Klik untuk mengganti icon / logo aplikasi' : 'Logo LMS PJOK'}
+              title={role === 'ADMIN' ? 'Klik untuk mengganti icon / logo aplikasi' : 'Logo NET PJOK'}
             >
               {appLogo ? (
-                <img src={appLogo} alt="Logo LMS PJOK" className="w-full h-full object-cover" />
+                <img src={appLogo} alt="Logo NET PJOK" className="w-full h-full object-cover" />
               ) : (
                 <Zap className="w-6 h-6 text-white fill-white" />
               )}
@@ -324,13 +339,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
               <span className="font-black text-base tracking-tight text-white block leading-none">
-                LMS PJOK
+                NET PJOK
               </span>
               <span className="text-[9px] font-black bg-blue-500/20 text-blue-300 border border-blue-400/30 px-1.5 py-0.5 rounded leading-none">
                 SMANSAKA
               </span>
             </div>
-            {/* Tampilkan nama lengkap di bawah logo tulisan LMS PJOK nama guru/murid */}
+            {/* Tampilkan nama lengkap di bawah logo tulisan NET PJOK nama guru/murid */}
             <div
               className="text-xs font-bold text-emerald-400 block truncate leading-snug mt-1"
               title={currentUser?.name}

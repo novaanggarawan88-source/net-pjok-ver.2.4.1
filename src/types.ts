@@ -342,6 +342,27 @@ export interface PenilaianSikap {
 // ----------------------------------------------------
 // PENILAIAN TEMAN SEJAWAT (ANTAR PESERTA DIDIK)
 // ----------------------------------------------------
+export interface DimensiAsesmenItem {
+  id: string;
+  nama: string;
+  deskripsi?: string;
+}
+
+export interface DimensiTemanSejawatConfig {
+  id: string;
+  kelasId: string; // 'all' atau ID kelas spesifik
+  kegiatan?: string;
+  dimensiList: DimensiAsesmenItem[];
+  updatedAt?: string;
+  guruNama?: string;
+}
+
+export interface SkorDimensi {
+  dimensiId: string;
+  nama: string;
+  skor: number; // 1 - 5
+}
+
 export interface PenilaianTemanSejawat {
   id: string;
   penilaiId: string; // Murid / Guru penilai
@@ -353,7 +374,9 @@ export interface PenilaianTemanSejawat {
   kelasNama?: string;
   tanggal: string; // YYYY-MM-DD
   kegiatanPraktik: string; // e.g. "Permainan Bola Voli Tim"
-  // Aspek Penilaian Teman (Skala 1 - 5)
+  // Dynamic Dimensi Asesmen (diisi manual oleh guru)
+  dimensiScores?: SkorDimensi[];
+  // Aspek Penilaian Teman (Skala 1 - 5) - fallback & kompatibilitas
   skorKerjaSama: number; // 1-5: Kekompakan saat bermain
   skorSportivitas: number; // 1-5: Sikap sportif dan adil
   skorKomunikasi: number; // 1-5: Saling menyemangati & berbicara sopan
@@ -361,6 +384,8 @@ export interface PenilaianTemanSejawat {
   rataRata?: number; // 1.0 - 5.0
   catatanPositif: string; // Kesan baik / apresiasi terhadap teman
   catatanPerbaikan?: string; // Saran perbaikan
+  linkDokumentasi?: string; // Upload link / URL dokumentasi video/foto praktik bersama teman
+  namaLinkDokumentasi?: string;
   createdAt: string;
 }
 

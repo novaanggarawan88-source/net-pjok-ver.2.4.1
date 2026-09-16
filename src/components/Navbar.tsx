@@ -230,7 +230,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             )}
           </div>
           <div className="leading-tight max-w-[120px] truncate">
-            <span className="font-black text-[11px] text-slate-800 block leading-none">LMS PJOK</span>
+            <span className="font-black text-[11px] text-slate-800 block leading-none">NET PJOK</span>
             <span className="text-[10px] text-emerald-600 font-bold block truncate leading-none mt-0.5" title={currentUser.name}>
               {currentUser.name}
             </span>
@@ -716,79 +716,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <span>Profil & Foto Saya</span>
                 </button>
               </div>
-
-              {/* Quick 3-Account Switcher for seamless synchronization testing */}
-              {onSwitchRole && (
-                <div className="py-2 px-1">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-2 mb-1.5">
-                    Hubungkan / Ganti Akun (3 Peran):
-                  </p>
-                  <div className="space-y-1">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowProfileMenu(false);
-                        onSwitchRole('ADMIN');
-                      }}
-                      className={`w-full text-left px-2.5 py-1.5 rounded-lg flex items-center justify-between text-xs transition-colors cursor-pointer ${
-                        currentUser.role === 'ADMIN'
-                          ? 'bg-blue-50 text-blue-700 font-bold'
-                          : 'text-slate-600 hover:bg-slate-50'
-                      }`}
-                    >
-                      <span className="flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-blue-600"></span>
-                        <span>Akun Administrator</span>
-                      </span>
-                      {currentUser.role === 'ADMIN' && (
-                        <span className="text-[10px] bg-blue-100 px-1.5 py-0.2 rounded font-bold">Aktif</span>
-                      )}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowProfileMenu(false);
-                        onSwitchRole('GURU');
-                      }}
-                      className={`w-full text-left px-2.5 py-1.5 rounded-lg flex items-center justify-between text-xs transition-colors cursor-pointer ${
-                        currentUser.role === 'GURU'
-                          ? 'bg-sky-50 text-sky-700 font-bold'
-                          : 'text-slate-600 hover:bg-slate-50'
-                      }`}
-                    >
-                      <span className="flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-sky-500"></span>
-                        <span>Akun Guru PJOK</span>
-                      </span>
-                      {currentUser.role === 'GURU' && (
-                        <span className="text-[10px] bg-sky-100 px-1.5 py-0.2 rounded font-bold">Aktif</span>
-                      )}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowProfileMenu(false);
-                        onSwitchRole('MURID');
-                      }}
-                      className={`w-full text-left px-2.5 py-1.5 rounded-lg flex items-center justify-between text-xs transition-colors cursor-pointer ${
-                        currentUser.role === 'MURID'
-                          ? 'bg-emerald-50 text-emerald-700 font-bold'
-                          : 'text-slate-600 hover:bg-slate-50'
-                      }`}
-                    >
-                      <span className="flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                        <span>Akun Murid / Siswa</span>
-                      </span>
-                      {currentUser.role === 'MURID' && (
-                        <span className="text-[10px] bg-emerald-100 px-1.5 py-0.2 rounded font-bold">Aktif</span>
-                      )}
-                    </button>
-                  </div>
-                </div>
-              )}
 
               <div className="pt-1 space-y-0.5">
                 {onOpenLoginModal && (

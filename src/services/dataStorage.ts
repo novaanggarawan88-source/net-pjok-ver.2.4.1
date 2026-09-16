@@ -24,6 +24,8 @@ import {
   PenilaianSikap,
   PenilaianTemanSejawat,
   PenilaianHarian,
+  DimensiTemanSejawatConfig,
+  DimensiAsesmenItem,
 } from '../types';
 import {
   collection,
@@ -72,6 +74,7 @@ export interface LMSDatabase {
   materiPraktikList?: string[];
   penilaianSikap?: PenilaianSikap[];
   penilaianTemanSejawat?: PenilaianTemanSejawat[];
+  dimensiTemanSejawat?: DimensiTemanSejawatConfig[];
   penilaianHarian?: PenilaianHarian[];
   isCleanSlate?: boolean;
   cleanSlateTimestamp?: string;
@@ -80,6 +83,13 @@ export interface LMSDatabase {
 }
 
 const STORAGE_KEY = 'lms_pjok_db_v6_clean';
+
+export const DEFAULT_DIMENSI_TEMAN_SEJAWAT: DimensiAsesmenItem[] = [
+  { id: 'dim-1', nama: 'Kerja Sama & Kekompakan Tim' },
+  { id: 'dim-2', nama: 'Sportivitas & Fair Play' },
+  { id: 'dim-3', nama: 'Komunikasi Saling Mendukung' },
+  { id: 'dim-4', nama: 'Tanggung Jawab dalam Peran Kelompok' },
+];
 
 export function safeStringTrim(val: unknown): string {
   if (val === null || val === undefined) return '';

@@ -320,7 +320,7 @@ export const PenilaianHarianManager: React.FC<PenilaianHarianManagerProps> = ({ 
               <span className="text-xs text-slate-400 font-semibold">• Skala Skor 1 - 5</span>
             </div>
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-              Penilaian Harian PJOK (Tombol 1-5)
+              Penilaian Harian PJOK
             </h1>
             <p className="text-xs text-slate-500 leading-relaxed max-w-3xl mt-1">
               Input penilaian cepat langsung saat jam olahraga di lapangan. Cukup sentuh tombol angka 1 sampai 5 untuk setiap siswa guna mencatat keaktifan, keterlibatan, dan capaian gerak harian.

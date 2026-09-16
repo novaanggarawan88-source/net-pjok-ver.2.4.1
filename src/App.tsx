@@ -188,9 +188,13 @@ export default function App() {
         case 'penilaian-harian':
           return <PenilaianHarianManager db={db} currentUser={currentUser} />;
         case 'penilaian-sikap':
-          return <PenilaianSikapManager db={db} currentUser={currentUser} />;
+          return <PenilaianSikapManager db={db} currentUser={currentUser} initialTab="entri" />;
+        case 'rekap-penilaian-sikap':
+          return <PenilaianSikapManager db={db} currentUser={currentUser} initialTab="rekap" />;
         case 'penilaian-teman':
-          return <PenilaianTemanSejawatManager db={db} currentUser={currentUser} />;
+          return <PenilaianTemanSejawatManager db={db} currentUser={currentUser} initialTab="daftar" />;
+        case 'rekap-penilaian-teman':
+          return <PenilaianTemanSejawatManager db={db} currentUser={currentUser} initialTab="rekap" />;
         case 'refleksi':
           return <GuruRefleksi db={db} currentUser={currentUser} />;
         case 'pengumuman':
@@ -274,9 +278,13 @@ export default function App() {
         case 'penilaian-harian':
           return <PenilaianHarianManager db={db} currentUser={currentUser} />;
         case 'penilaian-sikap':
-          return <PenilaianSikapManager db={db} currentUser={currentUser} />;
+          return <PenilaianSikapManager db={db} currentUser={currentUser} initialTab="entri" />;
+        case 'rekap-penilaian-sikap':
+          return <PenilaianSikapManager db={db} currentUser={currentUser} initialTab="rekap" />;
         case 'penilaian-teman':
-          return <PenilaianTemanSejawatManager db={db} currentUser={currentUser} />;
+          return <PenilaianTemanSejawatManager db={db} currentUser={currentUser} initialTab="daftar" />;
+        case 'rekap-penilaian-teman':
+          return <PenilaianTemanSejawatManager db={db} currentUser={currentUser} initialTab="rekap" />;
         case 'refleksi':
           return <GuruRefleksi db={db} currentUser={currentUser} />;
         case 'pengumuman':
@@ -333,11 +341,16 @@ export default function App() {
           return <MuridTugas db={db} currentUser={currentUser} />;
         case 'quiz-saya':
           return <MuridQuiz db={db} currentUser={currentUser} />;
+        case 'penilaian-teman-saya':
+        case 'penilaian-teman':
+          return <PenilaianTemanSejawatManager db={db} currentUser={currentUser} />;
         case 'refleksi-saya':
           return <MuridRefleksi db={db} currentUser={currentUser} />;
         case 'nilai-saya':
           return <MuridNilai db={db} currentUser={currentUser} />;
         case 'sikap-saya':
+        case 'penilaian-sikap-saya':
+        case 'penilaian-sikap':
           return <PenilaianSikapManager db={db} currentUser={currentUser} />;
         case 'presensi-saya':
           return <MuridPresensi db={db} currentUser={currentUser} />;
@@ -438,10 +451,6 @@ export default function App() {
           <div className="flex items-center gap-2">
             <span className="font-black text-blue-950 tracking-wider">
               VERSI 2.4.0 - 2026 PJOK SMAN 1 TEJAKULA
-            </span>
-            <span className="hidden md:inline text-slate-300">•</span>
-            <span className="hidden md:inline text-slate-500">
-              Learning Management System Penjasorkes
             </span>
           </div>
           <div className="hidden sm:flex items-center gap-2 text-slate-500 font-semibold">
