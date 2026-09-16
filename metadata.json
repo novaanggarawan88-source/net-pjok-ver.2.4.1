@@ -1,0 +1,8 @@
+{
+  "name": "LMS PJOK Versi 2.6.1.",
+  "description": "Learning Management System Pendidikan Jasmani, Olahraga, dan Kesehatan dengan integrasi Google Sheets",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
